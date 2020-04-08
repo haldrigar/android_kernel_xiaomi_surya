@@ -368,9 +368,9 @@ else
 HOSTCC	= gcc
 HOSTCXX	= g++
 endif
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 \
 		-fomit-frame-pointer -std=gnu89 $(HOST_LFS_CFLAGS)
-HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS)
+HOSTCXXFLAGS := -O3 $(HOST_LFS_CFLAGS)
 HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS)
 HOST_LOADLIBES := $(HOST_LFS_LIBS)
 
@@ -382,26 +382,24 @@ endif
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
 ifneq ($(LLVM),)
-CC		= clang
+REAL_CC		= clang
 LD		= ld.lld
 AR		= llvm-ar
 NM		= llvm-nm
 OBJCOPY		= llvm-objcopy
 OBJDUMP		= llvm-objdump
 READELF		= llvm-readelf
-OBJSIZE		= llvm-size
 STRIP		= llvm-strip
 else
-CC		= $(CROSS_COMPILE)gcc
+REAL_CC		= $(CROSS_COMPILE)gcc
 LD		= $(CROSS_COMPILE)ld
-LDGOLD	= $(CROSS_COMPILE)ld.gold
+LDGOLD		= $(CROSS_COMPILE)ld.gold
 AR		= $(CROSS_COMPILE)ar
-AS		= $(CROSS_COMPILE)as
 NM		= $(CROSS_COMPILE)nm
+STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 READELF		= $(CROSS_COMPILE)readelf
-OBJSIZE		= $(CROSS_COMPILE)size
 STRIP		= $(CROSS_COMPILE)strip
 endif
 AWK		= awk
