@@ -15,7 +15,7 @@ ANYKERNEL_BRANCH="silont"
 
 # Compiler
 COMP_TYPE="clang"
-CLANG_DIR="/root/kernel/tc/silont-clang"
+CLANG_DIR="/root/kernel/tc/clang"
 GCC_DIR="/root/kernel/tc/aarch64-linux-android-4.9"
 GCC32_DIR="/root/kernel/tc/arm-linux-androideabi-4.9"
 
