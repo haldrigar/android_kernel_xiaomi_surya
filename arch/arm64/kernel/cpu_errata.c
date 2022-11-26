@@ -350,6 +350,10 @@ void arm64_set_ssbd_mitigation(bool state)
 	}
 }
 
+#if defined(CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY) || \
+	defined(CONFIG_ARM64_SSBD)
+#endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY || CONFIG_ARM64_SSBD */
+
 static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
 				    int scope)
 {
