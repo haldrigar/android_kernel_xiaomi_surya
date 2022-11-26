@@ -10,12 +10,11 @@ KERN_DTB="${KERNEL_DIR}"/out/arch/arm64/boot/dtb.img
 ANYKERNEL="/root/kernel/AnyKernel3"
 
 # Repo URL
-ANYKERNEL_REPO="https://github.com/azrim/anykernel3.git"
-ANYKERNEL_BRANCH="master"
+ANYKERNEL_REPO="https://github.com/TheStrechh/AnyKernel3"
+ANYKERNEL_BRANCH="silont"
 
 # Compiler
-# Compiler
-COMP_TYPE="clang" # unset if want to use gcc as compiler
+COMP_TYPE="clang"
 CLANG_DIR="/root/kernel/tc/silont-clang"
 GCC_DIR="/root/kernel/tc/aarch64-linux-android-4.9"
 GCC32_DIR="/root/kernel/tc/arm-linux-androideabi-4.9"
@@ -29,7 +28,6 @@ fi
 
 # Defconfig
 DEFCONFIG="surya_defconfig"
-#REGENERATE_DEFCONFIG="" # unset if don't want to regenerate defconfig
 
 # Versioning
 versioning() {
@@ -37,30 +35,13 @@ versioning() {
     export $DEF
 }
 
-# Patch Defconfig
-patch_config() {
-    sed -i "s/${KERNELTYPE}/${KERNELTYPE}-TEST/g" "${KERNEL_DIR}/arch/arm64/configs/${DEFCONFIG}"
-    sed -i 's/CONFIG_THINLTO=y/CONFIG_THINLTO=n/g' arch/arm64/configs/"${DEFCONFIG}"
-    sed -i 's~SiLonT/~SiLonT-~g' arch/arm64/configs/"${DEFCONFIG}"
-    sed -i 's/# CONFIG_LOCALVERSION_AUTO is not set/CONFIG_LOCALVERSION_AUTO=y/g' arch/arm64/configs/"${DEFCONFIG}"
-    sed -i 's/# CONFIG_LOCALVERSION_BRANCH_SHA is not set/CONFIG_LOCALVERSION_AUTO=y/g' arch/arm64/configs/"${DEFCONFIG}"
-}
-
 # Costumize
-patch_config
 versioning
 KERNEL="SiLonT"
 DEVICE="Surya"
-KERNELNAME="${KERNEL}-${DEVICE}-${KERNELTYPE}-$(date +%y%m%d-%H%M)"
+KERNELNAME="${KERNEL}-${DEVICE}-$(date +%y%m%d-%H%M)"
 TEMPZIPNAME="${KERNELNAME}-unsigned.zip"
 ZIPNAME="${KERNELNAME}.zip"
-
-# Regenerating Defconfig
-regenerate() {
-    cp out/.config arch/arm64/configs/"${DEFCONFIG}"
-    git add arch/arm64/configs/"${DEFCONFIG}"
-    git commit -m "defconfig: Regenerate"
-}
 
 # Build Failed
 build_failed() {
