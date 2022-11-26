@@ -1,40 +1,24 @@
 #!/bin/bash
-#
-# Copyright (C) 2020 azrim.
-# All rights reserved.
 
 # Init
 KERNEL_DIR="${PWD}"
 cd "$KERNEL_DIR" || exit
 DTB_TYPE="" # define as "single" if want use single file
-KERN_IMG="${KERNEL_DIR}"/out/arch/arm64/boot/Image.gz   # if use single file define as Image.gz-dtb instead
-KERN_DTBO="${KERNEL_DIR}"/out/arch/arm64/boot/dtbo.img       # and comment this variable
+KERN_IMG="${KERNEL_DIR}"/out/arch/arm64/boot/Image.gz # if use single file define as Image.gz-dtb instead
+KERN_DTBO="${KERNEL_DIR}"/out/arch/arm64/boot/dtbo.img # and comment this variable
 KERN_DTB="${KERNEL_DIR}"/out/arch/arm64/boot/dtb.img
-ANYKERNEL="${HOME}"/anykernel
-LOGS="${HOME}"/${CHEAD}.log
+ANYKERNEL="/root/kernel/AnyKernel3"
 
 # Repo URL
 ANYKERNEL_REPO="https://github.com/azrim/anykernel3.git"
 ANYKERNEL_BRANCH="master"
 
-# Repo info
-PARSE_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-PARSE_ORIGIN="$(git config --get remote.origin.url)"
-COMMIT_POINT="$(git log --pretty=format:'%h : %s' -1)"
-CHEAD="$(git rev-parse --short HEAD)"
-LATEST_COMMIT="[$COMMIT_POINT](https://github.com/silont-project/kernel_xiaomi_surya/commit/$CHEAD)"
-LOGS_URL="[See Drone CI Build Logs Here](https://cloud.drone.io/silont-project/kernel_xiaomi_surya/$DRONE_BUILD_NUMBER)"
-
 # Compiler
-mkdir -p "/mnt/workdir/silont-clang"
+# Compiler
 COMP_TYPE="clang" # unset if want to use gcc as compiler
-CLANG_DIR="/mnt/workdir/silont-clang"
-CLANG_URL="https://github.com/silont-project/silont-clang/archive/20210117.tar.gz"
-GCC_DIR="" # Doesn't needed if use proton-clang
-GCC32_DIR="" # Doesn't needed if use proton-clang
-CLANG_FILE="/mnt/workdir/clang.tar.gz"
-
-git clone https://gitlab.com/AnggaR96s/clang-gengkapak.git --depth=1 --single-branch $CLANG_DIR
+CLANG_DIR="/root/kernel/tc/silont-clang"
+GCC_DIR="/root/kernel/tc/aarch64-linux-android-4.9"
+GCC32_DIR="/root/kernel/tc/arm-linux-androideabi-4.9"
 
 if [[ "${COMP_TYPE}" =~ "clang" ]]; then
     CSTRING=$("$CLANG_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
@@ -45,42 +29,7 @@ fi
 
 # Defconfig
 DEFCONFIG="surya_defconfig"
-REGENERATE_DEFCONFIG="" # unset if don't want to regenerate defconfig
-
-# Telegram
-CHATID="-1001156668998" # Group/channel chatid (use rose/userbot to get it)
-TELEGRAM_TOKEN="${TG_TOKEN}"
-
-# Export Telegram.sh
-TELEGRAM_FOLDER="${HOME}"/telegram
-if ! [ -d "${TELEGRAM_FOLDER}" ]; then
-    git clone https://github.com/fabianonline/telegram.sh/ "${TELEGRAM_FOLDER}"
-fi
-
-TELEGRAM="${TELEGRAM_FOLDER}"/telegram
-tg_cast() {
-	curl -s -X POST https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendMessage -d disable_web_page_preview="true" -d chat_id="$CHATID" -d "parse_mode=MARKDOWN" -d text="$(
-		for POST in "${@}"; do
-			echo "${POST}"
-		done
-	)" &> /dev/null
-}
-tg_ship() {
-    "${TELEGRAM}" -f "${ZIPNAME}" -t "${TELEGRAM_TOKEN}" -c "${CHATID}" -H \
-    "$(
-                for POST in "${@}"; do
-                        echo "${POST}"
-                done
-    )"
-}
-tg_fail() {
-    "${TELEGRAM}" -f "${LOGS}" -t "${TELEGRAM_TOKEN}" -c "${CHATID}" -H \
-    "$(
-                for POST in "${@}"; do
-                        echo "${POST}"
-                done
-    )"
-}
+#REGENERATE_DEFCONFIG="" # unset if don't want to regenerate defconfig
 
 # Versioning
 versioning() {
@@ -100,7 +49,7 @@ patch_config() {
 # Costumize
 patch_config
 versioning
-KERNEL="[TEST]-SiLonT"
+KERNEL="SiLonT"
 DEVICE="Surya"
 KERNELNAME="${KERNEL}-${DEVICE}-${KERNELTYPE}-$(date +%y%m%d-%H%M)"
 TEMPZIPNAME="${KERNELNAME}-unsigned.zip"
@@ -164,39 +113,11 @@ packingkernel() {
     cd "${ANYKERNEL}" || exit
     zip -r9 "${TEMPZIPNAME}" ./*
 
-    # Sign the zip before sending it to Telegram
-    curl -sLo zipsigner-4.0.jar https://raw.githubusercontent.com/baalajimaestro/AnyKernel3/master/zipsigner-4.0.jar
-    java -jar zipsigner-4.0.jar "${TEMPZIPNAME}" "${ZIPNAME}"
-
     END=$(date +"%s")
     DIFF=$(( END - START ))
-
-    # Ship it to the CI channel
-    tg_ship "<b>-------- $DRONE_BUILD_NUMBER Build Succeed --------</b>" \
-            "" \
-            "<b>Device:</b> ${DEVICE}" \
-            "<b>Version:</b> ${KERNELTYPE}" \
-            "<b>Commit Head:</b> ${CHEAD}" \
-            "<b>Time elapsed:</b> $((DIFF / 60)):$((DIFF % 60))" \
-            "" \
-            "Leave a comment below if encountered any bugs!"
 }
 
 # Starting
 NOW=$(date +%d/%m/%Y-%H:%M)
 START=$(date +"%s")
-tg_cast "*$DRONE_BUILD_NUMBER CI Build Triggered*" \
-	"Compiling with *$(nproc --all)* CPUs" \
-	"-----------------------------------------" \
-	"*Compiler:* ${CSTRING}" \
-	"*Device:* ${DEVICE}" \
-	"*Kernel:* ${KERNEL}" \
-	"*Version:* ${KERNELTYPE}" \
-	"*Linux Version:* $(make kernelversion)" \
-	"*Branch:* ${DRONE_BRANCH}" \
-	"*Clocked at:* ${NOW}" \
-	"*Latest commit:* ${LATEST_COMMIT}" \
- 	"------------------------------------------" \
-	"${LOGS_URL}"
-
 makekernel
