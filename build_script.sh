@@ -48,18 +48,14 @@ build_failed() {
 	    END=$(date +"%s")
 	    DIFF=$(( END - START ))
 	    echo -e "Kernel compilation failed, See buildlog to fix errors"
-	    tg_fail "Build for ${DEVICE} <b>failed</b> in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)!"
 	    exit 1
 }
 
 # Building
 makekernel() {
-    echo "azrim@Hearthaka" > "$KERNEL_DIR"/.builderdata
+    echo "Charly@xda-developers" > "$KERNEL_DIR"/.builderdata
     export PATH="${COMP_PATH}"
     make O=out ARCH=arm64 ${DEFCONFIG}
-    if [[ "${REGENERATE_DEFCONFIG}" =~ "true" ]]; then
-        regenerate
-    fi
     if [[ "${COMP_TYPE}" =~ "clang" ]]; then
         make -j$(nproc --all) CC=clang CROSS_COMPILE=aarch64-linux-gnu- O=out ARCH=arm64 LLVM=1 2>&1 | tee "$LOGS"
     else
