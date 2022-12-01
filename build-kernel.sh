@@ -3,8 +3,8 @@
 # Compile script for QuicksilveR kernel
 # Copyright (C) 2020-2021 Adithya R.
 
-export KBUILD_BUILD_HOST=TheStrechh
-export KBUILD_BUILD_USER=Snow
+export KBUILD_BUILD_HOST=CarlosArriaga
+export KBUILD_BUILD_USER=xda-developers
 
 SECONDS=0 # builtin bash timer
 ZIPNAME="QuickSilveR-$(date +"%d%m%Y-%H%M").zip"
