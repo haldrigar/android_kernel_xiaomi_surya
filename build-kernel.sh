@@ -8,7 +8,7 @@ export KBUILD_BUILD_USER=xda-developers
 
 SECONDS=0 # builtin bash timer
 ZIPNAME="QuickSilveR-$(date +"%d%m%Y-%H%M").zip"
-TC_DIR="/root/kernel/tc/clang"
+TC_DIR="/root/kernel/tc/silont-clang"
 GCC_64_DIR="/root/kernel/tc/aarch64-linux-android-4.9"
 GCC_32_DIR="/root/kernel/tc/arm-linux-androideabi-4.9"
 AK3_DIR="/root/kernel/AnyKernel3"
